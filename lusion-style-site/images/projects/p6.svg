@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d0a24"/><stop offset="100%" stop-color="#0b0b0c"/>
+    </linearGradient>
+    <radialGradient id="r" cx="66%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#8d7dff" stop-opacity=".8"/><stop offset="100%" stop-color="#8d7dff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <rect width="1600" height="1000" fill="url(#r)"/>
+  <g fill="none" stroke="#8d7dff" stroke-opacity=".55" stroke-width="2">
+    <circle cx="980" cy="376" r="376"/>
+    <circle cx="980" cy="376" r="448"/>
+    <path d="M0 856 Q 800 256 1600 860"/>
+  </g>
+  <g fill="#8d7dff" fill-opacity=".5">
+    <circle cx="500" cy="420" r="6"/><circle cx="1120" cy="540" r="9"/>
+    <circle cx="1220" cy="640" r="5"/>
+  </g>
+  <text x="90" y="880" font-family="Helvetica,Arial,sans-serif" font-size="64" font-weight="600" letter-spacing="-2" fill="#f2f1ec">Verdant: Dream Machine</text>
+  <text x="90" y="936" font-family="Helvetica,Arial,sans-serif" font-size="24" letter-spacing="10" fill="#8d7dff">PLACEHOLDER IMAGE — REPLACE ME</text>
+</svg>

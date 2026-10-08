@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Garden City — 3D Visual Storytelling & Interactive Web Experiences</title>
+<meta name="description" content="Garden City is an independent studio crafting 3D visual storytelling and interactive web experiences that help brands stand out." />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e0f0d'/%3E%3Cg fill='%23f2f1ec'%3E%3Crect x='13' y='13' width='6' height='6'/%3E%3Crect x='13' y='20' width='6' height='6'/%3E%3Crect x='6' y='6' width='6' height='6'/%3E%3Crect x='20' y='6' width='6' height='6'/%3E%3C/g%3E%3Crect x='13' y='6' width='6' height='6' fill='%232fb456'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   GARDEN CITY — lusion.co-style format, original design & code
+   Light editorial theme · dark rounded media frames · WebGL core
+   ============================================================ */
+:root{
+  --bg:#f2f1ec;
+  --bg-2:#e9e8e2;
+  --ink:#161614;
+  --grey:#8d8c86;
+  --grey-2:#b9b8b1;
+  --line:rgba(22,22,20,.14);
+  --frame:#0d0d0f;
+  --accent:#d4611e;      /* GCU orange */
+  --accent-bright:#f08c1e;
+  --e:cubic-bezier(.16,1,.3,1);
+  --e2:cubic-bezier(.65,0,.25,1);
+  --pad:clamp(18px,3.4vw,58px);
+  --nav-h:74px;
+  --radius:14px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;
+  font-weight:400;line-height:1.5;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+body.is-locked{overflow:hidden}
+img,svg,canvas,video{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:var(--accent);color:#fff}
+h1,h2,h3{margin:0;font-weight:400;letter-spacing:-.035em;line-height:1}
+
+/* paper grain */
+.grain{position:fixed;inset:-40%;z-index:9000;pointer-events:none;opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 800ms steps(2,end) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-2%,2%)}50%{transform:translate(2%,-2%)}75%{transform:translate(-2%,-1%)}100%{transform:translate(2%,2%)}}
+
+/* ---------------- PRELOADER (pixel logo + counter, lusion-style) ---------------- */
+#loader{position:fixed;inset:0;z-index:10000;background:#f2f1ec;display:flex;align-items:center;justify-content:center}
+#loader .ld-logo{width:clamp(200px,36vw,430px);height:auto;mix-blend-mode:multiply}
+#loader .px{transform-box:fill-box;transform-origin:50% 50%}
+#loader .ld-count{position:absolute;left:var(--pad);bottom:calc(var(--pad) * .8);
+  font-family:'Space Grotesk',Inter,sans-serif;font-size:clamp(58px,9vw,132px);line-height:.85;
+  letter-spacing:-.04em;color:#161614;font-variant-numeric:tabular-nums}
+#loader .ld-tag{position:absolute;right:var(--pad);bottom:calc(var(--pad) * .8 + 8px);
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:#8d8c86;text-align:right;line-height:2}
+.ld-gone{pointer-events:none}
+
+/* ---------------- CUSTOM CURSOR ---------------- */
+.cur,.cur-d{position:fixed;top:0;left:0;z-index:9500;pointer-events:none;border-radius:50%;will-change:transform}
+.cur{width:34px;height:34px;margin:-17px 0 0 -17px;border:1.2px solid rgba(22,22,20,.55);
+  display:grid;place-items:center;transition:width .45s var(--e),height .45s var(--e),margin .45s var(--e),background .3s,border-color .3s}
+.cur span{font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);opacity:0;transform:scale(.6);transition:.35s var(--e)}
+.cur.is-hover{width:64px;height:64px;margin:-32px 0 0 -32px;border-color:var(--ink)}
+.cur.is-view{width:88px;height:88px;margin:-44px 0 0 -44px;background:var(--ink);border-color:var(--ink)}
+.cur.is-view span{opacity:1;transform:none;color:var(--bg)}
+.cur-d{width:5px;height:5px;margin:-2.5px 0 0 -2.5px;background:var(--ink)}
+body.on-dark .cur{border-color:rgba(242,241,236,.6)} body.on-dark .cur span{color:var(--bg)}
+body.on-dark .cur.is-view{background:var(--bg);border-color:var(--bg)} body.on-dark .cur.is-view span{color:var(--ink)}
+body.on-dark .cur-d{background:var(--bg)}
+@media (hover:none),(pointer:coarse){.cur,.cur-d{display:none}}
+
+/* ---------------- HEADER ---------------- */
+header.nav{position:fixed;top:0;left:0;right:0;z-index:600;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad)}
+.brand{display:flex;align-items:center;gap:11px}
+.brand img{height:36px;width:auto;mix-blend-mode:multiply}
+.brand .wm{font-family:'Space Grotesk',Inter,sans-serif;font-weight:500;font-size:15px;letter-spacing:.14em;text-transform:uppercase}
+.nav-right{display:flex;align-items:center;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:9px;border-radius:99px;padding:11px 20px;
+  font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;
+  transition:transform .5s var(--e),background .35s,color .35s,box-shadow .35s}
+.pill-dark{background:var(--ink);color:var(--bg)}
+.pill-dark:hover{background:var(--accent)}
+.pill-light{background:var(--bg-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.pill-light:hover{background:#dedcd4}
+.pill .dotc{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.85}
+.pill .bars{display:flex;gap:3px}
+.pill .bars i{width:3px;height:3px;border-radius:50%;background:currentColor;display:block}
+.orb{width:38px;height:38px;border-radius:50%;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--line);
+  display:grid;place-items:center;transition:transform .5s var(--e),background .3s}
+.orb:hover{background:#dedcd4}
+.orb i{width:10px;height:1.5px;background:var(--ink);display:block;transition:.3s}
+.orb.on i{transform:rotate(90deg)}
+@media(max-width:640px){
+  .brand .wm{display:none}
+  .orb{display:none}
+  .nav-right{gap:7px}
+  .pill{padding:9px 13px;font-size:9.5px;letter-spacing:.12em}
+}
+
+/* ---------------- MENU OVERLAY ---------------- */
+#menu{position:fixed;inset:0;z-index:550;background:var(--bg);clip-path:inset(0 0 100% 0);pointer-events:none;
+  display:flex;flex-direction:column;justify-content:center;padding:calc(var(--nav-h) + 2vh) var(--pad) 5vh}
+body.menu-open #menu{pointer-events:auto}
+#menu .m-links{display:flex;flex-direction:column}
+#menu .m-links a{font-size:clamp(40px,9vw,124px);letter-spacing:-.045em;line-height:1.06;display:flex;align-items:baseline;gap:.3em;overflow:hidden}
+#menu .m-links a em{font-style:normal;font-size:.13em;letter-spacing:.22em;color:var(--grey);text-transform:uppercase}
+#menu .m-links a > div{will-change:transform}
+#menu .m-foot{display:flex;flex-wrap:wrap;gap:18px 44px;justify-content:space-between;margin-top:6vh;
+  padding-top:22px;border-top:1px solid var(--line);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey)}
+#menu .m-foot a:hover{color:var(--ink)}
+
+/* ---------------- HERO (statement + rounded media frame) ---------------- */
+main{position:relative;z-index:2}
+.hero{padding:calc(var(--nav-h) + clamp(28px,7vh,84px)) var(--pad) 0}
+.statement{max-width:760px;margin:0 auto;font-size:clamp(21px,2.75vw,37px);line-height:1.34;letter-spacing:-.02em;font-weight:400}
+.statement .mask{display:block;overflow:hidden}
+.statement .mask > span{display:block;will-change:transform}
+.statement b{font-weight:500;color:var(--accent)}
+
+.frame-zone{position:relative;margin:clamp(26px,5vh,58px) auto 0;max-width:1680px}
+.frame{position:relative;border-radius:var(--radius);overflow:hidden;background:var(--frame);
+  width:100%;aspect-ratio:2.05/1;min-height:300px;isolation:isolate}
+@media(max-width:820px){.frame{aspect-ratio:16/11}}
+.frame canvas{position:absolute;inset:0;width:100%;height:100%}
+.frame .frame-tag{position:absolute;left:16px;bottom:14px;z-index:3;font-size:9.5px;letter-spacing:.26em;
+  text-transform:uppercase;color:rgba(242,241,236,.55);z-index:3}
+.frame .frame-live{position:absolute;right:16px;top:14px;z-index:3;display:flex;align-items:center;gap:7px;
+  font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:rgba(242,241,236,.55)}
+.frame .frame-live i{width:6px;height:6px;border-radius:50%;background:var(--accent-bright);animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+.plus{position:absolute;color:var(--grey-2);font-size:15px;line-height:1;user-select:none;font-weight:300}
+.scroll-row{display:flex;align-items:center;justify-content:center;gap:16px;margin:22px 0 0;
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--grey)}
+
+/* ---------------- MANIFESTO ---------------- */
+.manifesto{position:relative;padding:clamp(90px,16vh,190px) var(--pad) clamp(60px,10vh,120px);overflow:hidden}
+.mani-grid{display:grid;gap:clamp(30px,5vw,70px);max-width:1680px;margin:0 auto;position:relative}
+@media(min-width:1000px){.mani-grid{grid-template-columns:1.25fr .75fr;align-items:start}}
+.h-giant{font-size:clamp(52px,9.6vw,164px);letter-spacing:-.045em;line-height:.98}
+.h-giant .mask{display:block;overflow:hidden}
+.h-giant .mask > span{display:block;will-change:transform}
+.mani-right{display:flex;flex-direction:column;gap:26px;align-items:flex-start}
+@media(min-width:1000px){.mani-right{padding-top:clamp(10px,3vw,54px)}}
+.mani-right p{margin:0;font-size:clamp(14px,1.15vw,17px);line-height:1.65;color:#4c4c48;max-width:44ch}
+.arc{position:absolute;left:-6%;top:6%;width:min(46vw,640px);pointer-events:none;z-index:0}
+.mani-img{margin-top:clamp(30px,6vh,64px);border-radius:12px;overflow:hidden;max-width:520px;position:relative;z-index:1}
+.mani-img{aspect-ratio:4/3}
+.mani-img img.seq{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform,opacity}
+.s2,.s3{opacity:0}
+/* video-player overlays */
+.bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(242,241,236,.22);
+  transform:scaleX(0);transform-origin:left;z-index:4;pointer-events:none}
+.bar::after{content:'';position:absolute;inset:0;background:var(--accent-bright)}
+.tc{position:absolute;left:12px;bottom:10px;z-index:4;pointer-events:none;
+  font-family:'Space Grotesk',Inter,sans-serif;font-size:9px;font-weight:500;letter-spacing:.18em;
+  color:rgba(242,241,236,.8);font-variant-numeric:tabular-nums;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.tc::before{content:'●';color:var(--accent-bright);margin-right:6px;animation:blink 1.6s infinite}
+.mani-img::after{content:'';position:absolute;inset:0;background:var(--accent);mix-blend-mode:color;opacity:.55;pointer-events:none}
+
+/* ---------------- FEATURED WORK ---------------- */
+.work{padding:clamp(70px,12vh,150px) var(--pad)}
+.work-head{display:grid;gap:26px;max-width:1680px;margin:0 auto clamp(34px,6vh,72px)}
+@media(min-width:1000px){.work-head{grid-template-columns:1fr auto;align-items:end}}
+.work-head p{margin:0;max-width:34ch;font-size:11px;letter-spacing:.14em;text-transform:uppercase;line-height:1.9;color:var(--grey)}
+.grid{display:grid;gap:clamp(30px,4vw,64px) clamp(20px,2.4vw,40px);max-width:1680px;margin:0 auto}
+@media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+.card{display:block}
+.card .media{position:relative;border-radius:12px;overflow:hidden;background:var(--frame);aspect-ratio:16/10}
+.card .media img{width:100%;height:100%;object-fit:cover;will-change:transform}
+.card:hover .media img{filter:saturate(1.1) brightness(1.03)}
+.card .media::after{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);border-radius:12px;pointer-events:none}
+.card .meta{margin:16px 0 6px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey)}
+.card .meta i{font-style:normal;margin:0 7px;color:var(--grey-2)}
+.card .title{display:flex;align-items:center;gap:14px;font-size:clamp(22px,2.5vw,38px);letter-spacing:-.03em;color:#3c3c38;transition:color .35s}
+.card:hover .title{color:var(--ink)}
+.card .title .ar{font-size:.72em;transform:translateX(-6px);opacity:0;transition:.45s var(--e)}
+.card:hover .title .ar{transform:none;opacity:1}
+.card:nth-child(even){margin-top:clamp(0px,6vw,110px)}  /* lusion's staggered columns */
+.card:nth-child(5) .media img{object-position:30% 15%}
+.card:nth-child(6) .media img{object-position:70% 45%}
+.card:nth-child(7) .media img{object-position:50% 85%}
+.card:nth-child(8) .media img{object-position:8% 60%}
+@media(max-width:899px){.card:nth-child(even){margin-top:0}}
+
+/* ---------------- REEL ---------------- */
+.reel{padding:clamp(40px,8vh,110px) var(--pad) clamp(80px,14vh,170px)}
+.reel-zone{position:relative;max-width:1680px;margin:0 auto}
+.reel-frame{position:relative;border-radius:var(--radius);overflow:hidden;width:100%;aspect-ratio:2.05/1;min-height:280px;
+  background:
+   radial-gradient(90% 120% at 20% 10%, #274d33 0%, transparent 55%),
+   radial-gradient(80% 110% at 85% 90%, #123a52 0%, transparent 55%),
+   #0c0d0e;
+  display:grid;place-items:center;cursor:none}
+@media(max-width:820px){.reel-frame{aspect-ratio:16/11;cursor:pointer}}
+.reel-frame .rt{display:flex;align-items:center;gap:clamp(14px,2.4vw,34px);color:#f2f1ec;
+  font-size:clamp(26px,4.6vw,74px);letter-spacing:-.02em;font-weight:300}
+.reel-frame .play{width:clamp(58px,7vw,104px);height:clamp(58px,7vw,104px);border-radius:50%;background:rgba(242,241,236,.94);
+  display:grid;place-items:center;transition:transform .5s var(--e),background .3s}
+.reel-frame:hover .play{transform:scale(1.08);background:#fff}
+.reel-frame .play svg{width:22%;height:auto;margin-left:8%}
+#reelModal{position:fixed;inset:0;z-index:9800;background:rgba(8,8,9,.94);display:none;align-items:center;justify-content:center;padding:5vw}
+#reelModal.open{display:flex}
+#reelModal .box{width:min(1100px,100%);aspect-ratio:16/9;background:#000;border-radius:10px;overflow:hidden;position:relative}
+#reelModal video{width:100%;height:100%;object-fit:cover}
+#reelModal .ph{position:absolute;inset:0;display:grid;place-items:center;color:#8d8c86;font-size:12px;letter-spacing:.22em;text-transform:uppercase;text-align:center;padding:20px}
+#reelModal .x{position:absolute;top:18px;right:20px;color:#f2f1ec;font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+
+/* ---------------- APPROACH ---------------- */
+.approach{padding:0 var(--pad) clamp(80px,14vh,170px)}
+.ap-head{max-width:1680px;margin:0 auto clamp(26px,5vh,56px);display:grid;gap:24px}
+@media(min-width:1000px){.ap-head{grid-template-columns:1fr auto;align-items:end}}
+.ap-head p{margin:0;max-width:36ch;font-size:11px;letter-spacing:.14em;text-transform:uppercase;line-height:1.9;color:var(--grey)}
+.rows{max-width:1680px;margin:0 auto;border-top:1px solid var(--line)}
+.row{display:grid;gap:10px 34px;padding:clamp(22px,3.4vh,40px) 4px;border-bottom:1px solid var(--line);
+  grid-template-columns:64px 1fr;align-items:start;transition:background .5s var(--e),padding .5s var(--e)}
+@media(min-width:900px){.row{grid-template-columns:80px .9fr 1.1fr auto;align-items:center}}
+.row:hover{background:rgba(22,22,20,.035);padding-left:16px;padding-right:16px}
+.row .n{font-size:11px;letter-spacing:.2em;color:var(--grey)}
+.row h3{font-size:clamp(21px,2.5vw,36px);letter-spacing:-.03em}
+.row p{margin:0;font-size:13.5px;line-height:1.65;color:#5a5a55;max-width:52ch}
+.row .tags{display:flex;gap:6px;flex-wrap:wrap}
+.row .tags span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);
+  border:1px solid var(--line);border-radius:99px;padding:5px 10px;transition:.4s var(--e)}
+.row:hover .tags span{border-color:rgba(22,22,20,.3);color:var(--ink)}
+
+/* ---------------- FOOTER ---------------- */
+footer{background:#0e0f0d;color:#f2f1ec;padding:clamp(60px,10vh,120px) var(--pad) 30px;position:relative;z-index:2}
+.f-top{max-width:1680px;margin:0 auto;display:grid;gap:36px}
+@media(min-width:1000px){.f-top{grid-template-columns:1.2fr .8fr;align-items:start}}
+.f-top h2{font-size:clamp(40px,7vw,110px);letter-spacing:-.045em;line-height:1}
+.f-top .sub{margin:18px 0 0;color:#9a9a94;font-size:14px;line-height:1.7;max-width:40ch}
+.f-cta{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.f-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 30px;font-size:12px;letter-spacing:.1em}
+.f-list a{color:#b8b8b2;transition:color .3s}
+.f-list a:hover{color:#fff}
+.f-list span{color:#6f6f69;font-size:10px;letter-spacing:.22em;text-transform:uppercase;display:block;margin-bottom:8px}
+.f-mark{max-width:1680px;margin:clamp(46px,9vh,110px) auto 0;overflow:hidden}
+.f-mark svg{width:100%;height:auto}
+.f-bot{max-width:1680px;margin:26px auto 0;padding-top:20px;border-top:1px solid rgba(242,241,236,.14);
+  display:flex;flex-wrap:wrap;gap:14px 34px;justify-content:space-between;
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7c7c76}
+.f-bot a:hover{color:#fff}
+
+/* reveal helpers (only when JS is alive) */
+body.js [data-rv]{opacity:0;transform:translateY(26px)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}.grain{display:none}}
+</style>
+</head>
+<body>
+<script>document.body.classList.add('js')</script>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cur" id="cur" aria-hidden="true"><span>View</span></div>
+<div class="cur-d" id="curd" aria-hidden="true"></div>
+
+<!-- ================= PRELOADER ================= -->
+<div id="loader">
+  <!-- 🖼  PLACEHOLDER PIXEL LOGO — swap for the Garden City logo you'll send -->
+  <img class="ld-logo" id="ldLogo" src="images/logo.jpg" alt="Garden City University" />
+  <div class="ld-count" id="ldNum">0</div>
+  <div class="ld-tag">Garden City<br/>Loading experience</div>
+</div>
+
+<!-- ================= HEADER ================= -->
+<header class="nav">
+  <a href="#top" class="brand" data-cursor="hover" aria-label="Garden City home">
+    <!-- 🖼  replace src with your Garden City logo file when you send it -->
+    <img src="images/logo.jpg" alt="Garden City University" id="brandLogo" />
+    
+  </a>
+  <div class="nav-right">
+    <button class="orb" id="orb" aria-label="Toggle ambient sound (placeholder)" data-cursor="hover"><i></i></button>
+    <a class="pill pill-dark" href="#contact" data-cursor="hover" data-magnetic>Let's talk <span class="dotc"></span></a>
+    <button class="pill pill-light" id="burger" aria-expanded="false" data-cursor="hover" data-magnetic>Menu <span class="bars"><i></i><i></i></span></button>
+  </div>
+</header>
+
+<!-- ================= MENU ================= -->
+<div id="menu" aria-hidden="true">
+  <div class="m-links">
+    <a href="#top"      data-menu-link><div><em>01</em>Home</div></a>
+    <a href="#work"     data-menu-link><div><em>02</em>Featured Work</div></a>
+    <a href="#approach" data-menu-link><div><em>03</em>Approach</div></a>
+    <a href="#reel"     data-menu-link><div><em>04</em>Reel</div></a>
+    <a href="#contact"  data-menu-link><div><em>05</em>Contact</div></a>
+  </div>
+  <div class="m-foot">
+    <a href="mailto:admissions@gardencity.edu.in" data-cursor="hover">admissions@gardencity.edu.in</a>
+    <div style="display:flex;gap:20px">
+      <a href="#" data-cursor="hover">Instagram</a><a href="#" data-cursor="hover">X</a>
+      <a href="#" data-cursor="hover">LinkedIn</a><a href="#" data-cursor="hover">Awwwards</a>
+    </div>
+    <span>Bengaluru · IN</span>
+  </div>
+</div>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <h1 class="statement" aria-label="We grow 3D visual storytelling and interactive web experiences that help brands stand out.">
+      <span class="mask"><span data-st>We grow <b>3D visual storytelling</b></span></span>
+      <span class="mask"><span data-st>and interactive web experiences</span></span>
+      <span class="mask"><span data-st>that help brands <b>stand out</b>.</span></span>
+    </h1>
+
+    <div class="frame-zone">
+      <span class="plus" style="left:-4px;top:-22px">+</span>
+      <span class="plus" style="right:-4px;top:-22px">+</span>
+      <span class="plus" style="left:-4px;bottom:-22px">+</span>
+      <span class="plus" style="right:-4px;bottom:-22px">+</span>
+      <div class="frame" id="heroFrame" data-dark>
+        <div class="frame-live"><i></i>Realtime WebGL</div>
+        <div class="frame-tag">Garden City — Particle Garden · 001</div>
+      </div>
+      <div class="scroll-row"><span class="plus">+</span> Scroll to explore <span class="plus">+</span></div>
+    </div>
+  </section>
+
+  <!-- ================= MANIFESTO ================= -->
+  <section class="manifesto">
+    <svg class="arc" viewBox="0 0 600 700" fill="none" aria-hidden="true">
+      <path d="M560 -20 C 240 90, 90 300, 150 470 C 190 585, 300 640, 420 660"
+            stroke="var(--accent-bright)" stroke-width="7" stroke-linecap="round"/>
+    </svg>
+    <div class="mani-grid">
+      <div>
+        <h2 class="h-giant">
+          <span class="mask"><span data-ln>Living ideas,</span></span>
+          <span class="mask"><span data-ln>brought to bloom.</span></span>
+        </h2>
+        <div class="mani-img" data-rv id="maniSeq">
+          <img class="seq s1" src="images/projects/p2.jpg" alt="Garden City University campus gate" />
+          <img class="seq s2" src="images/projects/p3.jpg" alt="Garden City University main block" />
+          <img class="seq s3" src="images/projects/p1.jpg" alt="Garden City University aerial view" />
+        </div>
+      </div>
+      <div class="mani-right">
+        <p data-rv>We combine design, motion, 3D and development to create digital experiences that feel organic, striking and technically seamless — from campaign launches to fully immersive brand worlds.</p>
+        <a class="pill pill-light" href="#approach" data-cursor="hover" data-magnetic><span class="dotc"></span> Our approach</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURED WORK ================= -->
+  <section class="work" id="work">
+    <div class="work-head">
+      <h2 class="h-giant"><span class="mask"><span data-ln>Featured Work</span></span></h2>
+      <p data-rv>A selection of living digital experiences, grown for ambitious brands and forward-thinking teams.</p>
+    </div>
+
+    <!-- 🖼  SWAP THESE IMAGES: drop your files in images/projects/ and change each src -->
+    <div class="grid">
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p1.jpg" alt="Campus Life" loading="lazy"/></div>
+        <div class="meta">Web<i>•</i>Design<i>•</i>Development<i>•</i>3D</div>
+        <div class="title">Campus Life <span class="ar">→</span></div>
+      </a>
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p2.jpg" alt="Admissions 2026" loading="lazy"/></div>
+        <div class="meta">Web<i>•</i>Design<i>•</i>Development<i>•</i>3D</div>
+        <div class="title">Admissions 2026 <span class="ar">→</span></div>
+      </a>
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p3.jpg" alt="School of Architecture" loading="lazy"/></div>
+        <div class="meta">Concept<i>•</i>Web<i>•</i>Game Design<i>•</i>3D</div>
+        <div class="title">School of Architecture <span class="ar">→</span></div>
+      </a>
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p4.jpg" alt="I ♥ GCU Campaign" loading="lazy"/></div>
+        <div class="meta">AR<i>•</i>Development<i>•</i>3D</div>
+        <div class="title">I ♥ GCU Campaign <span class="ar">→</span></div>
+      </a>
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p5.jpg" alt="Aerial Campus Tour" loading="lazy"/></div>
+        <div class="meta">Web<i>•</i>Design<i>•</i>Development<i>•</i>3D</div>
+        <div class="title">Aerial Campus Tour <span class="ar">→</span></div>
+      </a>
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p6.jpg" alt="Verdant Dream Machine" loading="lazy"/></div>
+        <div class="meta">Concept<i>•</i>3D Illustration<i>•</i>Motion<i>•</i>Video</div>
+        <div class="title">Green Campus Initiative <span class="ar">→</span></div>
+      </a>
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p7.jpg" alt="Main Block Experience" loading="lazy"/></div>
+        <div class="meta">Web<i>•</i>Design<i>•</i>Development<i>•</i>3D</div>
+        <div class="title">Main Block Experience <span class="ar">→</span></div>
+      </a>
+      <a class="card" href="#" data-cursor="view">
+        <div class="media"><img src="images/projects/p8.jpg" alt="Lagoon Stories" loading="lazy"/></div>
+        <div class="meta">Web<i>•</i>Design<i>•</i>Development<i>•</i>3D<i>•</i>Animation</div>
+        <div class="title">Lagoon Stories <span class="ar">→</span></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================= REEL ================= -->
+  <section class="reel" id="reel">
+    <div class="reel-zone">
+      <span class="plus" style="left:-4px;top:-22px">+</span>
+      <span class="plus" style="right:22%;top:-22px">+</span>
+      <span class="plus" style="left:-4px;bottom:-22px">+</span>
+      <span class="plus" style="right:-4px;bottom:-22px">+</span>
+      <div class="reel-frame" id="reelFrame" data-dark data-cursor="view">
+        <div class="rt"><span>Play</span>
+          <span class="play"><svg viewBox="0 0 24 24" fill="#161614"><path d="M6 3.8v16.4L20 12 6 3.8z"/></svg></span>
+          <span>Reel</span></div>
+      </div>
+      <div class="scroll-row"><span class="plus">+</span> Showreel — 2026 <span class="plus">+</span></div>
+    </div>
+  </section>
+
+  <div id="reelModal" role="dialog" aria-modal="true" aria-label="Showreel">
+    <div class="box">
+      <video id="reelVideo" controls preload="metadata" playsinline></video>
+      <div class="ph" id="reelPh" hidden>Drop your showreel at <b>&nbsp;images/reel.mp4&nbsp;</b> and it plays here</div>
+    </div>
+    <button class="x" id="reelClose" data-cursor="hover">Close ✕</button>
+  </div>
+
+  <!-- ================= APPROACH ================= -->
+  <section class="approach" id="approach">
+    <div class="ap-head">
+      <h2 class="h-giant"><span class="mask"><span data-ln>Our Approach</span></span></h2>
+      <p data-rv>Four disciplines, one team. Senior people on every project — no handoffs, no layers.</p>
+    </div>
+    <div class="rows">
+      <div class="row" data-rv>
+        <span class="n">01</span>
+        <h3>Concept &amp; Strategy</h3>
+        <p>Positioning, narrative and creative direction. We prototype in the browser early, so decisions are made against the real thing.</p>
+        <div class="tags"><span>Research</span><span>Narrative</span><span>Prototypes</span></div>
+      </div>
+      <div class="row" data-rv>
+        <span class="n">02</span>
+        <h3>Design &amp; Art Direction</h3>
+        <p>Identity systems, interfaces and typography that stay unmistakable across every screen size and state.</p>
+        <div class="tags"><span>Brand</span><span>UI</span><span>Type</span></div>
+      </div>
+      <div class="row" data-rv>
+        <span class="n">03</span>
+        <h3>3D, Motion &amp; Sound</h3>
+        <p>Realtime scenes, particle systems and hand-written shaders, choreographed with sound to feel alive at 60fps.</p>
+        <div class="tags"><span>WebGL</span><span>GLSL</span><span>GSAP</span></div>
+      </div>
+      <div class="row" data-rv>
+        <span class="n">04</span>
+        <h3>Build &amp; Launch</h3>
+        <p>Production engineering: fast, accessible, maintainable — handed over clean, with care plans after launch.</p>
+        <div class="tags"><span>Next.js</span><span>CMS</span><span>Performance</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer id="contact">
+  <div class="f-top">
+    <div>
+      <h2 data-rv>Let's grow<br/>something rare.</h2>
+      <p class="sub" data-rv>Tell us about your project — we reply within two working days.</p>
+    </div>
+    <div class="f-cta">
+      <a class="pill pill-dark" style="background:#f2f1ec;color:#161614" href="mailto:admissions@gardencity.edu.in" data-cursor="hover" data-magnetic>admissions@gardencity.edu.in <span class="dotc"></span></a>
+      <div class="f-list">
+        <div><span>Social</span><a href="#" data-cursor="hover">Instagram</a><br/><a href="#" data-cursor="hover">X / Twitter</a><br/><a href="#" data-cursor="hover">LinkedIn</a></div>
+        <div><span>Studio</span><a href="#" data-cursor="hover">Bengaluru, IN</a><br/><a href="#" data-cursor="hover">Careers</a><br/><a href="#" data-cursor="hover">Press kit</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="f-mark" aria-hidden="true">
+    <svg viewBox="0 0 1200 150" fill="none">
+      <text x="0" y="118" font-family="Space Grotesk, Inter, sans-serif" font-size="118" letter-spacing="-4"
+            fill="none" stroke="rgba(242,241,236,.34)" stroke-width="1.2">GARDEN CITY</text>
+    </svg>
+  </div>
+
+  <div class="f-bot">
+    <span>© <span id="yr">2026</span> Garden City Studio</span>
+    <span>Design · Motion · 3D · Code</span>
+    <a href="#top" data-cursor="hover">Back to top ↑</a>
+  </div>
+</footer>
+
+<!-- ================= LIBS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js" } }</script>
+
+<script type="module">
+import * as THREE from 'three';
+const { gsap } = window;
+gsap.registerPlugin(window.ScrollTrigger);
+const ST = window.ScrollTrigger;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isTouch = matchMedia('(hover: none)').matches;
+document.getElementById('yr').textContent = new Date().getFullYear();
+
+let loaderDone = 0;   // read by the render loop — must exist before anything runs
+
+/* ================= SMOOTH SCROLL ================= */
+let lenis = null;
+if (!REDUCED && window.Lenis) {
+  lenis = new window.Lenis({ duration: 1.15, smoothWheel: true, wheelMultiplier: .95, lerp: .09 });
+  lenis.on('scroll', ST.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+}
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href'); if (id.length < 2) return;
+    const el = document.querySelector(id); if (!el) return;
+    e.preventDefault(); closeMenu();
+    lenis ? lenis.scrollTo(el, { offset: -8, duration: 1.4 }) : el.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+/* ================= WEBGL PARTICLE GARDEN (inside hero frame) ================= */
+const frame = document.getElementById('heroFrame');
+const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x0d0d0f, 1);
+frame.appendChild(renderer.domElement);
+
+const scene  = new THREE.Scene();
+scene.fog    = new THREE.FogExp2(0x0d0d0f, 0.05);
+const camera = new THREE.PerspectiveCamera(40, 2, 0.1, 200);
+camera.position.set(0, 0, 15);
+
+function sizeRenderer() {
+  const w = frame.clientWidth, h = frame.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  mat && (mat.uniforms.uPR.value = renderer.getPixelRatio());
+  camera.position.z = (w / h < 1.2 ? 21 : w / h < 1.7 ? 18 : 15) + scrollState.p * 9;
+}
+
+/* ---- formations ---- */
+const COUNT = isTouch ? 9000 : 22000;
+function shapeSphere(n, R = 3.05) {
+  const a = new Float32Array(n * 3), g = (1 + Math.sqrt(5)) / 2;
+  for (let i = 0; i < n; i++) {
+    const y = 1 - (i / (n - 1)) * 2, r = Math.sqrt(Math.max(0, 1 - y * y));
+    const th = 2 * Math.PI * i / g, j = .86 + Math.random() * .28;
+    a[i*3] = Math.cos(th) * r * R * j; a[i*3+1] = y * R * j; a[i*3+2] = Math.sin(th) * r * R * j;
+  } return a;
+}
+function shapeBloom(n) {                      // a flower / sprout burst
+  const a = new Float32Array(n * 3), petals = 6;
+  for (let i = 0; i < n; i++) {
+    const t = Math.random() * Math.PI * 2, pet = Math.floor(t / (Math.PI * 2) * petals);
+    const ang = (pet + .5) / petals * Math.PI * 2;
+    const rad = Math.pow(Math.random(), .6) * 3.1;
+    const spread = (Math.random() - .5) * .9 * (1 - rad / 3.4);
+    a[i*3]   = Math.cos(ang) * rad + Math.cos(ang + Math.PI / 2) * spread;
+    a[i*3+1] = Math.sin(ang) * rad * .82 + Math.sin(ang + Math.PI / 2) * spread + rad * .18;
+    a[i*3+2] = (Math.random() - .5) * .5 * (1 - rad / 3.6);
+  } return a;
+}
+function shapeHelix(n, R = 2.4) {
+  const a = new Float32Array(n * 3), strands = 3;
+  for (let i = 0; i < n; i++) {
+    const s = i % strands, t = (i / n) * Math.PI * 7;
+    const rad = R * (.55 + .45 * Math.sin(t * .5 + s)), j = (Math.random() - .5) * .22;
+    a[i*3] = Math.cos(t + s * 2.094) * rad + j;
+    a[i*3+1] = ((i / n) - .5) * 7.2 + j;
+    a[i*3+2] = Math.sin(t + s * 2.094) * rad + j;
+  } return a;
+}
+function shapeKnot(n, R = 2.05) {
+  const a = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const t = (i / n) * Math.PI * 4, s = .28 + Math.random() * .5;
+    const cq = Math.cos(3 * t / 2), r = R * (1 + .45 * cq);
+    const ang = Math.random() * Math.PI * 2, rad = Math.random() * .42;
+    a[i*3] = r * Math.cos(t) + Math.cos(ang) * rad * s;
+    a[i*3+1] = r * Math.sin(t) * .8 + Math.sin(ang) * rad * s;
+    a[i*3+2] = R * .45 * Math.sin(3 * t / 2) + Math.cos(ang + 1.5) * rad * s;
+  } return a;
+}
+const targets = [shapeBloom(COUNT), shapeSphere(COUNT), shapeHelix(COUNT), shapeKnot(COUNT)];
+
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(targets[0].slice(), 3));
+geo.setAttribute('aTarget',  new THREE.BufferAttribute(targets[1].slice(), 3));
+const aRand = new Float32Array(COUNT), aSize = new Float32Array(COUNT), aTint = new Float32Array(COUNT);
+const COLORS = ['#2fb456', '#c9ff4d', '#59d7ff', '#ff8a3a'];
+for (let i = 0; i < COUNT; i++) {
+  aRand[i] = Math.random();
+  aSize[i] = .45 + Math.pow(Math.random(), 2.4) * 1.9;
+  aTint[i] = Math.floor(Math.random() * COLORS.length);
+}
+geo.setAttribute('aRand', new THREE.BufferAttribute(aRand, 1));
+geo.setAttribute('aSize', new THREE.BufferAttribute(aSize, 1));
+geo.setAttribute('aTint', new THREE.BufferAttribute(aTint, 1));
+const palette = COLORS.map(c => new THREE.Color(c));
+
+const mat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  uniforms: {
+    uTime:{value:0}, uMorph:{value:0}, uSpin:{value:0}, uSize:{value:1},
+    uPR:{value:1}, uMouse:{value:new THREE.Vector2()}, uBurst:{value:0}, uRep:{value:0},
+    uSpread:{value:0}, uAlpha:{value:0},
+    uC0:{value:palette[0]}, uC1:{value:palette[1]}, uC2:{value:palette[2]}, uC3:{value:palette[3]}
+  },
+  vertexShader: `
+    uniform float uTime,uMorph,uSpin,uSize,uPR,uBurst,uSpread,uRep; uniform vec2 uMouse;
+    attribute vec3 aTarget; attribute float aRand,aSize,aTint;
+    varying float vA,vTint,vD;
+    vec3 curl(vec3 p,float t){return vec3(
+      sin(p.y*1.7+t*.55)+cos(p.z*1.3-t*.35),
+      sin(p.z*1.9-t*.45)+cos(p.x*1.1+t*.3),
+      sin(p.x*1.5+t*.5)+cos(p.y*1.6-t*.4))*.5;}
+    void main(){
+      float st=clamp((uMorph-aRand*.38)/.62,0.,1.);
+      float e=st*st*(3.-2.*st);
+      vec3 pos=mix(position,aTarget,e);
+      pos+=curl(pos*.32+aRand*6.,uTime)*(.045+.05*sin(uTime*.8))*(.5+aRand);
+      vec3 dir=normalize(pos+vec3(.0001));
+      pos+=dir*sin(e*3.14159)*(.55+aRand*1.5)*smoothstep(0.,.12,uMorph)*smoothstep(1.,.88,uMorph);
+      pos=mix(pos*(1.+aRand*7.)+curl(pos,3.)*4.,pos,uSpread);
+      vec4 mv=modelViewMatrix*vec4(pos,1.);
+      vec2 m=uMouse*vec2(6.2,3.4); vec2 d2=mv.xy-m;
+      float infl=1.-smoothstep(0.,2.9,length(d2));
+      mv.xy+=normalize(d2+vec2(.0001))*infl*infl*1.05*uRep;
+      mv.xyz+=dir*uBurst*(.4+aRand)*2.6;
+      mv.x+=sin(uSpin*.35+pos.y*.8)*uSpin*.12;
+      vD=-mv.z; vTint=aTint; vA=(.28+.72*aRand)*infl;
+      gl_Position=projectionMatrix*mv;
+      gl_PointSize=uSize*aSize*uPR*(155./max(vD,.001))*(.55+.4*aRand);
+    }`,
+  fragmentShader: `
+    precision highp float;
+    uniform float uAlpha; uniform vec3 uC0,uC1,uC2,uC3;
+    varying float vA,vTint,vD;
+    void main(){
+      vec2 c=gl_PointCoord-.5; float d=length(c); if(d>.5) discard;
+      float glow=smoothstep(.5,0.,d), core=pow(glow,6.);
+      vec3 col=vTint<.5?uC0:vTint<1.5?uC1:vTint<2.5?uC2:uC3;
+      col=mix(col,vec3(1.),core*.5);
+      float a=(glow*.45+core*.8)*(.34+vA*.6)*uAlpha;
+      gl_FragColor=vec4(col,a);
+    }`
+});
+scene.add(new THREE.Points(geo, mat));
+
+
+
+const clock = new THREE.Clock();
+const pointer = { x:0, y:0, tx:0, ty:0, last:-9 };
+frame.addEventListener('pointermove', e => {
+  pointer.last = clock.getElapsedTime();
+  const r = frame.getBoundingClientRect();
+  pointer.tx = ((e.clientX - r.left) / r.width) * 2 - 1;
+  pointer.ty = -(((e.clientY - r.top) / r.height) * 2 - 1);
+}, { passive:true });
+frame.addEventListener('pointerleave', () => { pointer.tx = 0; pointer.ty = 0; pointer.last = -9; });
+frame.addEventListener('pointerdown', () => gsap.fromTo(mat.uniforms.uBurst, { value:.5 }, { value:0, duration:1.1, ease:'power3.out' }));
+
+const state = { shape:0 };
+function setShape(i, dur = 1.7) {
+  i = ((i % targets.length) + targets.length) % targets.length;
+  if (i === state.shape && dur !== 0) return;
+  state.shape = i;
+  geo.setAttribute('aTarget', new THREE.BufferAttribute(targets[i], 3));
+  mat.uniforms.uMorph.value = 0;
+  gsap.to(mat.uniforms.uMorph, { value:1, duration: REDUCED ? .01 : dur, ease:'power2.inOut' });
+}
+const scrollState = { p:0 };
+ST.create({ trigger: document.body, start:'top top', end:'bottom bottom', onUpdate: s => scrollState.p = s.progress });
+
+let visible = true;
+new IntersectionObserver(en => visible = en[0].isIntersecting, { threshold: 0 }).observe(frame);
+
+(function tick() {
+  requestAnimationFrame(tick);
+  if (!visible && loaderDone) return;
+  const t = clock.getElapsedTime();
+  mat.uniforms.uTime.value = t;
+  pointer.x += (pointer.tx - pointer.x) * .06;
+  pointer.y += (pointer.ty - pointer.y) * .06;
+  mat.uniforms.uMouse.value.set(pointer.x, pointer.y);
+  const repTarget = (t - pointer.last < 1.4) ? 1 : 0;
+  mat.uniforms.uRep.value += (repTarget - mat.uniforms.uRep.value) * .06;
+  const p = scrollState.p;
+  mat.uniforms.uSpin.value = p * 5;
+  const pts = scene.children[0];
+  pts.rotation.y = t * .07 + p * 2.4 + pointer.x * .3;
+  pts.rotation.x = Math.sin(t * .12) * .1 + pointer.y * -.24 + p * .4;
+  mat.uniforms.uAlpha.value = loaderDone;
+  renderer.render(scene, camera);
+})();
+
+sizeRenderer();
+addEventListener('resize', () => { sizeRenderer(); lenis && lenis.resize(); ST.refresh(); });
+
+/* ================= CURSOR ================= */
+if (!isTouch) {
+  const cur = document.getElementById('cur'), dot = document.getElementById('curd');
+  const pos = { x: innerWidth/2, y: innerHeight/2 }, tgt = { ...pos };
+  addEventListener('pointermove', e => { tgt.x = e.clientX; tgt.y = e.clientY; }, { passive:true });
+  (function loop(){ pos.x += (tgt.x-pos.x)*.18; pos.y += (tgt.y-pos.y)*.18;
+    cur.style.transform = `translate3d(${pos.x}px,${pos.y}px,0)`;
+    dot.style.transform = `translate3d(${tgt.x}px,${tgt.y}px,0)`;
+    requestAnimationFrame(loop); })();
+  document.querySelectorAll('[data-cursor]').forEach(el => {
+    const mode = el.dataset.cursor;
+    el.addEventListener('pointerenter', () => {
+      cur.classList.add(mode === 'view' ? 'is-view' : 'is-hover');
+      cur.querySelector('span').textContent = mode === 'view' ? 'View' : '↗';
+    });
+    el.addEventListener('pointerleave', () => cur.classList.remove('is-hover','is-view'));
+  });
+  /* dark zones flip the cursor light */
+  const zones = [...document.querySelectorAll('[data-dark]'), document.querySelector('footer')];
+  const io = new IntersectionObserver(() => {}, {});
+  addEventListener('pointermove', e => {
+    const over = zones.some(z => { const r = z.getBoundingClientRect();
+      return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
+    document.body.classList.toggle('on-dark', over);
+  }, { passive:true });
+}
+
+/* ================= MENU ================= */
+const burger = document.getElementById('burger'), menu = document.getElementById('menu');
+const mLinks = [...menu.querySelectorAll('[data-menu-link] > div')];
+let menuOpen = false, menuTl = null;
+function openMenu(){
+  menuOpen = true; document.body.classList.add('menu-open','is-locked');
+  burger.setAttribute('aria-expanded','true'); menu.setAttribute('aria-hidden','false');
+  lenis && lenis.stop(); menuTl && menuTl.kill();
+  menuTl = gsap.timeline()
+    .to(menu, { clipPath:'inset(0 0 0% 0)', duration:.95, ease:'expo.inOut' })
+    .fromTo(mLinks, { yPercent:115, rotate:2 }, { yPercent:0, rotate:0, duration:1, stagger:.065, ease:'expo.out' }, '-=.55')
+    .fromTo(menu.querySelectorAll('.m-foot > *'), { opacity:0, y:16 }, { opacity:1, y:0, duration:.6, stagger:.06 }, '-=.7');
+}
+function closeMenu(){
+  if (!menuOpen) return;
+  menuOpen = false; document.body.classList.remove('menu-open','is-locked');
+  burger.setAttribute('aria-expanded','false'); menu.setAttribute('aria-hidden','true');
+  lenis && lenis.start(); menuTl && menuTl.kill();
+  menuTl = gsap.timeline()
+    .to(mLinks, { yPercent:115, duration:.5, stagger:.03, ease:'power3.in' })
+    .to(menu, { clipPath:'inset(0 0 100% 0)', duration:.8, ease:'expo.inOut' }, '-=.25');
+}
+burger.addEventListener('click', () => menuOpen ? closeMenu() : openMenu());
+addEventListener('keydown', e => { if (e.key === 'Escape') { closeMenu(); closeReel(); } });
+
+/* ================= MAGNETIC + ORB + REEL MODAL ================= */
+if (!isTouch && !REDUCED) document.querySelectorAll('[data-magnetic]').forEach(el => {
+  el.addEventListener('pointermove', e => {
+    const r = el.getBoundingClientRect();
+    gsap.to(el, { x:(e.clientX-(r.left+r.width/2))*.3, y:(e.clientY-(r.top+r.height/2))*.3, duration:.7, ease:'power3.out' });
+  });
+  el.addEventListener('pointerleave', () => gsap.to(el, { x:0, y:0, duration:.9, ease:'elastic.out(1,.4)' }));
+});
+document.getElementById('orb').addEventListener('click', e => e.currentTarget.classList.toggle('on'));
+
+const modal = document.getElementById('reelModal'), vid = document.getElementById('reelVideo');
+fetch('images/reel.mp4', { method:'HEAD' }).then(r => {
+  if (!r.ok) throw 0;
+  vid.src = 'images/reel.mp4';            // 🎬 drop your showreel at images/reel.mp4
+}).catch(() => { vid.remove(); document.getElementById('reelPh').hidden = false; });
+function openReel(){ modal.classList.add('open'); document.body.classList.add('is-locked'); lenis && lenis.stop(); vid.isConnected && vid.play().catch(()=>{}); }
+function closeReel(){ if (!modal.classList.contains('open')) return;
+  modal.classList.remove('open'); document.body.classList.remove('is-locked'); lenis && lenis.start(); vid.isConnected && vid.pause(); }
+document.getElementById('reelFrame').addEventListener('click', openReel);
+document.getElementById('reelClose').addEventListener('click', closeReel);
+modal.addEventListener('click', e => { if (e.target === modal) closeReel(); });
+
+/* ================= SCROLL REVEALS ================= */
+gsap.utils.toArray('[data-ln]').forEach(el => {
+  gsap.fromTo(el, { yPercent:112 }, { yPercent:0, duration:1.15, ease:'expo.out',
+    scrollTrigger:{ trigger: el.closest('.mask'), start:'top 92%', once:true } });
+});
+gsap.utils.toArray('[data-rv]').forEach(el => {
+  gsap.to(el, { opacity:1, y:0, duration:1.05, ease:'power3.out',
+    scrollTrigger:{ trigger:el, start:'top 92%', once:true } });
+});
+gsap.fromTo('.card', { opacity:0, y:44 }, { opacity:1, y:0, duration:1, stagger:.09, ease:'power3.out',
+  scrollTrigger:{ trigger:'.grid', start:'top 84%', once:true } });
+
+/* ================= SCROLL-PLAYED "VIDEO" IMAGES ================= */
+const fmtTC = pr => { const sec = Math.round(pr * 12);
+  return `00:${String(sec).padStart(2,'0')} / 00:12`; };
+document.querySelectorAll('.card .media').forEach(m =>
+  m.insertAdjacentHTML('beforeend', '<span class="tc"></span><i class="bar"></i>'));
+gsap.utils.toArray('.card').forEach((card, i) => {
+  const img = card.querySelector('.media img'),
+        bar = card.querySelector('.bar'), tc = card.querySelector('.tc');
+  const sx = i % 2 ? 6 : -6, sy = ((i % 3) - 1) * 3;
+  gsap.fromTo(img, { scale: 1.3, xPercent: sx, yPercent: sy },
+    { scale: 1.05, xPercent: 0, yPercent: 0, ease: 'none',
+      scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: .6,
+        onUpdate: t => { bar.style.transform = `scaleX(${t.progress})`;
+                         tc.textContent = fmtTC(t.progress); } } });
+});
+const seq = document.getElementById('maniSeq');
+if (seq) {
+  seq.insertAdjacentHTML('beforeend', '<span class="tc"></span><i class="bar"></i>');
+  const bar = seq.querySelector('.bar'), tc = seq.querySelector('.tc');
+  gsap.timeline({ scrollTrigger: { trigger: seq, start: 'top 85%', end: 'bottom 15%', scrub: .6,
+      onUpdate: t => { bar.style.transform = `scaleX(${t.progress})`;
+                       tc.textContent = fmtTC(t.progress); } } })
+    .fromTo('.s1', { scale: 1.25 }, { scale: 1.05, ease: 'none', duration: 1 }, 0)
+    .fromTo('.s2', { scale: 1.25 }, { scale: 1.05, ease: 'none', duration: 1 }, 0)
+    .fromTo('.s3', { scale: 1.25 }, { scale: 1.05, ease: 'none', duration: 1 }, 0)
+    .to('.s2', { opacity: 1, ease: 'none', duration: .18 }, .33)
+    .to('.s1', { opacity: 0, ease: 'none', duration: .18 }, .33)
+    .to('.s3', { opacity: 1, ease: 'none', duration: .18 }, .66)
+    .to('.s2', { opacity: 0, ease: 'none', duration: .18 }, .66);
+}
+
+/* ================= PRELOADER + INTRO (lusion format) ================= */
+const loaderEl = document.getElementById('loader'), num = document.getElementById('ldNum');
+const stLines = document.querySelectorAll('[data-st]');
+const prog = { v:0 };
+
+/* initial hide states via GSAP (never via CSS → no transform-composition bugs) */
+gsap.set(stLines, { yPercent:115 });
+gsap.set('.frame-zone', { opacity:0, scale:.965, transformOrigin:'50% 60%' });
+gsap.set('#ldLogo', { scale:.92, opacity:0 });
+
+const intro = gsap.timeline({ paused:true })
+  .to('#ldLogo', { scale:1, opacity:1, duration:1.0, ease:'power3.out' }, .2)
+  .to(prog, { v:100, duration:2.2, ease:'power2.inOut',
+      onUpdate: () => num.textContent = Math.round(prog.v) }, .1)
+  .to(mat.uniforms.uSpread, { value:1, duration:2.3, ease:'power3.inOut' }, .5)
+  .to('#ldLogo', { scale:.965, duration:.3, ease:'power2.in', yoyo:true, repeat:1 }, 2.3)
+  .to(loaderEl, { yPercent:-100, duration:1.1, ease:'expo.inOut' }, 2.6)
+  .set(loaderEl, { display:'none' })
+  .add(() => loaderDone = 1, 2.65)
+  .to(stLines, { yPercent:0, duration:1.35, stagger:.09, ease:'expo.out' }, 3.0)
+  .to('.frame-zone', { opacity:1, scale:1, duration:1.5, ease:'power3.out' }, 3.15)
+  .add(() => setShape(1, 2.4), 4.2);
+
+/* scroll-driven formations */
+[ { at:.18, s:2 }, { at:.42, s:3 }, { at:.68, s:0 }, { at:.88, s:1 } ].forEach(({ at, s }) => {
+  ST.create({ trigger: document.body, start: () => `${at*100}% top`, end: () => `${at*100+12}% top`,
+    onEnter: () => setShape(s), onEnterBack: () => setShape(s) });
+});
+
+if (REDUCED) {
+  loaderDone = 1; mat.uniforms.uSpread.value = 1;
+  loaderEl.style.display = 'none';
+  gsap.set(stLines, { yPercent:0 }); gsap.set('.frame-zone', { opacity:1, scale:1 });
+  gsap.set('[data-rv]', { opacity:1, y:0 }); gsap.set('.card', { opacity:1, y:0 });
+  ST.refresh();
+} else {
+  const fontsReady = document.fonts?.ready ?? Promise.resolve();
+  Promise.race([fontsReady, new Promise(r => setTimeout(r, 1200))]).then(() => intro.play());
+}
+</script>
+</body>
+</html>

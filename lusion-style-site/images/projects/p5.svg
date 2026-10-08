@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#101a04"/><stop offset="100%" stop-color="#0b0b0c"/>
+    </linearGradient>
+    <radialGradient id="r" cx="58%" cy="37%" r="80%">
+      <stop offset="0%" stop-color="#c9ff4d" stop-opacity=".8"/><stop offset="100%" stop-color="#c9ff4d" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <rect width="1600" height="1000" fill="url(#r)"/>
+  <g fill="none" stroke="#c9ff4d" stroke-opacity=".55" stroke-width="2">
+    <circle cx="920" cy="400" r="350"/>
+    <circle cx="920" cy="400" r="430"/>
+    <path d="M0 840 Q 800 300 1600 850"/>
+  </g>
+  <g fill="#c9ff4d" fill-opacity=".5">
+    <circle cx="460" cy="390" r="6"/><circle cx="1150" cy="500" r="9"/>
+    <circle cx="1200" cy="660" r="5"/>
+  </g>
+  <text x="90" y="880" font-family="Helvetica,Arial,sans-serif" font-size="64" font-weight="600" letter-spacing="-2" fill="#f2f1ec">Synthetic Grove</text>
+  <text x="90" y="936" font-family="Helvetica,Arial,sans-serif" font-size="24" letter-spacing="10" fill="#c9ff4d">PLACEHOLDER IMAGE — REPLACE ME</text>
+</svg>
